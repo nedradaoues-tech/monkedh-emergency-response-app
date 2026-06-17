@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monkedh - Application d'Urgence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        /* Écrans */
+        .screen {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Écran de connexion */
+        .login-screen {
+            padding: 40px 30px;
+            background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
+            color: white;
+        }
+
+        .app-logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .app-logo .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .app-logo h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .app-logo .slogan {
+            font-size: 1em;
+            opacity: 0.9;
+            direction: rtl;
+        }
+
+        .login-form {
+            margin-top: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .form-group input:focus {
+            outline: 3px solid white;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #E74C3C;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            margin-top: 15px;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .role-option {
+            padding: 15px;
+            border: 2px solid white;
+            border-radius: 10px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .role-option.selected {
+            background: white;
+            color: #E74C3C;
+        }
+
+        /* Écran principal SOS */
+        .sos-screen {
+            background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
+            padding: 40px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .header {
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h2 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .header .user-info {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .sos-button-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sos-button {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: white;
+            color: #E74C3C;
+            font-size: 3em;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 0 rgba(255,255,255,0.7);
+            }
+            50% {
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 20px rgba(255,255,255,0);
+            }
+        }
+
+        .sos-button:active {
+            transform: scale(0.95);
+        }
+
+        .sos-button.pressed {
+            animation: countdown 3s linear;
+            background: linear-gradient(to top, #27AE60 0%, white 100%);
+        }
+
+        @keyframes countdown {
+            0% { background: linear-gradient(to top, #27AE60 0%, white 0%); }
+            100% { background: linear-gradient(to top, #27AE60 100%, white 100%); }
+        }
+
+        .sos-instructions {
+            color: white;
+            margin-top: 40px;
+            font-size: 1.1em;
+        }
+
+        .sos-instructions strong {
+            font-size: 1.3em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .footer-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            margin-top: 40px;
+        }
+
+        .footer-nav button {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .footer-nav button:hover {
+            background: white;
+            color: #E74C3C;
+        }
+
+        /* Écran d'alerte envoyée */
+        .alert-sent-screen {
+            background: linear-gradient(135deg, #27AE60 0%, #229954 100%);
+            padding: 40px 30px;
+            color: white;
+            text-align: center;
+        }
+
+        .alert-sent-screen .success-icon {
+            font-size: 100px;
+            margin: 40px 0;
+            animation: bounce 1s ease;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+
+        .alert-sent-screen h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .alert-info p {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .alert-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Dashboard Régulateur */
+        .dashboard-screen {
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #3498DB 0%, #2874A6 100%);
+            color: white;
+            padding: 30px;
+        }
+
+        .dashboard-header h2 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .alerts-list {
+            padding: 20px;
+        }
+
+        .alert-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border-left: 5px solid #E74C3C;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .alert-card.resolved {
+            border-left-color: #27AE60;
+            opacity: 0.7;
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .alert-status {
+            background: #E74C3C;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .alert-status.resolved {
+            background: #27AE60;
+        }
+
+        .alert-details {
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        .alert-details p {
+            margin: 5px 0;
+        }
+
+        .alert-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-success {
+            background: #27AE60;
+            color: white;
+        }
+
+        .btn-info {
+            background: #3498DB;
+            color: white;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #999;
+        }
+
+        /* Guidage RCP */
+        .rcp-screen {
+            background: white;
+            padding: 30px;
+        }
+
+        .rcp-header {
+            background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .rcp-step {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #3498DB;
+        }
+
+        .rcp-step h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .rcp-step p {
+            color: #555;
+            line-height: 1.8;
+            font-size: 1.05em;
+        }
+
+        .metronome {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .metronome-circle {
+            width: 150px;
+            height: 150px;
+            border: 10px solid #E74C3C;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+        }
+
+        .metronome-circle.beat {
+            animation: beat 0.6s ease;
+        }
+
+        @keyframes beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); border-color: #27AE60; }
+        }
+
+        .metronome button {
+            background: #27AE60;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .metronome button.stop {
+            background: #E74C3C;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .app-container {
+                border-radius: 0;
+                max-width: 100%;
+            }
+            
+            .sos-button {
+                width: 200px;
+                height: 200px;
+                font-size: 2.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Écran de Connexion -->
+        <div id="loginScreen" class="screen active login-screen">
+            <div class="app-logo">
+                <div class="icon">🚨</div>
+                <h1>Monkedh</h1>
+                <p class="slogan">ما تكونش متفرج، كون منقذ</p>
+                <p style="font-size: 0.9em; margin-top: 5px;">Ne soyez plus spectateur, devenez le sauveur</p>
+            </div>
+
+            <div class="login-form">
+                <div class="form-group">
+                    <label>Sélectionnez votre rôle</label>
+                    <div class="role-selector">
+                        <div class="role-option selected" onclick="selectRole('CITOYEN')">
+                            👤 Citoyen
+                        </div>
+                        <div class="role-option" onclick="selectRole('REGULATEUR')">
+                            💼 Régulateur
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Prénom</label>
+                    <input type="text" id="firstName" placeholder="Votre prénom" value="Ahmed">
+                </div>
+
+                <div class="form-group">
+                    <label>Nom</label>
+                    <input type="text" id="lastName" placeholder="Votre nom" value="Ben Ali">
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="votre@email.com" value="ahmed@monkedh.tn">
+                </div>
+
+                <button class="btn btn-primary" onclick="login()">Se Connecter</button>
+                <button class="btn btn-secondary" onclick="showDemo()">Mode Démo</button>
+            </div>
+        </div>
+
+        <!-- Écran Principal SOS (Citoyen) -->
+        <div id="sosScreen" class="screen sos-screen">
+            <div class="header">
+                <h2>Bienvenue sur Monkedh</h2>
+                <p class="user-info" id="userInfo">Chargement...</p>
+            </div>
+
+            <div class="sos-button-container">
+                <button class="sos-button" 
+                        onmousedown="startSOSPress()" 
+                        onmouseup="cancelSOSPress()"
+                        ontouchstart="startSOSPress()"
+                        ontouchend="cancelSOSPress()">
+                    🚨<br>SOS
+                </button>
+            </div>
+
+            <div class="sos-instructions">
+                <strong>Appuyez longuement 3 secondes</strong>
+                <p>en cas d'arrêt cardio-respiratoire</p>
+            </div>
+
+            <div class="footer-nav">
+                <button onclick="showRCPGuide()">📖 Guide RCP</button>
+                <button onclick="logout()">🚪 Déconnexion</button>
+            </div>
+        </div>
+
+        <!-- Écran Alerte Envoyée -->
+        <div id="alertSentScreen" class="screen alert-sent-screen">
+            <div class="success-icon">✅</div>
+            <h2>Alerte Envoyée !</h2>
+            <p style="font-size: 1.2em; margin: 20px 0;">Les secours ont été prévenus</p>
+
+            <div class="alert-info">
+                <p><strong>📍 Votre Position</strong></p>
+                <p id="alertLocation">Chargement...</p>
+                
+                <p style="margin-top: 20px;"><strong>🕐 Heure d'alerte</strong></p>
+                <p id="alertTime">Chargement...</p>
+                
+                <p style="margin-top: 20px;"><strong>🚑 Status</strong></p>
+                <p>Le SAMU et les secouristes à proximité ont été notifiés</p>
+            </div>
+
+            <button class="btn btn-primary" onclick="showRCPGuide()">
+                💓 Commencer le Guidage RCP
+            </button>
+
+            <button class="btn btn-secondary" onclick="backToSOS()" style="margin-top: 15px;">
+                Retour
+            </button>
+        </div>
+
+        <!-- Écran Guidage RCP -->
+        <div id="rcpScreen" class="screen rcp-screen">
+            <div class="rcp-header">
+                <h2>🫀 Guidage RCP</h2>
+                <p>Suivez les instructions étape par étape</p>
+            </div>
+
+            <div class="rcp-step">
+                <h3>Étape 1 : Vérifier la conscience</h3>
+                <p>• Parlez fort à la personne : "Ça va ? Vous m'entendez ?"<br>
+                   • Secouez doucement les épaules<br>
+                   • Si pas de réponse → Passez à l'étape 2</p>
+            </div>
+
+            <div class="rcp-step">
+                <h3>Étape 2 : Vérifier la respiration</h3>
+                <p>• Basculez doucement la tête en arrière<br>
+                   • Approchez votre oreille de la bouche<br>
+                   • Regardez, écoutez, sentez pendant 10 secondes<br>
+                   • Si pas de respiration normale → Démarrez la RCP</p>
+            </div>
+
+            <div class="rcp-step">
+                <h3>Étape 3 : Compressions Thoraciques</h3>
+                <p>• Placez vos mains au centre de la poitrine<br>
+                   • Bras tendus, comprimez de 5-6 cm<br>
+                   • Rythme : 100-120 compressions par minute<br>
+                   • 30 compressions puis 2 insufflations</p>
+            </div>
+
+            <div class="metronome">
+                <h3>Métronome RCP (100 BPM)</h3>
+                <div class="metronome-circle" id="metronomeCircle">💓</div>
+                <p id="compressionCount" style="font-size: 1.5em; font-weight: bold; margin: 15px 0;">0 / 30</p>
+                <button id="metronomeBtn" onclick="toggleMetronome()">▶ Démarrer</button>
+            </div>
+
+            <button class="btn btn-secondary" onclick="backFromRCP()">
+                ← Retour
+            </button>
+        </div>
+
+        <!-- Dashboard Régulateur -->
+        <div id="dashboardScreen" class="screen dashboard-screen">
+            <div class="dashboard-header">
+                <h2>🚨 Centre de Régulation SAMU</h2>
+                <p id="regulatorInfo">Chargement...</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number" id="activeAlerts">0</span>
+                        <span class="stat-label">Alertes Actives</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="availableRescuers">0</span>
+                        <span class="stat-label">Secouristes Dispo</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="avgResponseTime">--</span>
+                        <span class="stat-label">Temps Moyen</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alerts-list" id="alertsList">
+                <!-- Les alertes seront ajoutées ici dynamiquement -->
+            </div>
+
+            <div style="padding: 20px;">
+                <button class="btn btn-secondary" onclick="logout()">🚪 Déconnexion</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Détails Alerte -->
+    <div id="alertModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">×</span>
+            <h3>Détails de l'Alerte</h3>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // État de l'application
+        let currentUser = null;
+        let currentRole = 'CITOYEN';
+        let sosTimeout = null;
+        let alertsDatabase = [];
+        let metronomeInterval = null;
+        let metronomeRunning = false;
+        let compressionCount = 0;
+
+        // Sélection du rôle
+        function selectRole(role) {
+            currentRole = role;
+            document.querySelectorAll('.role-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            event.target.closest('.role-option').classList.add('selected');
+        }
+
+        // Connexion
+        function login() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+
+            if (!firstName || !lastName || !email) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+
+            currentUser = {
+                id: Math.random().toString(36).substr(2, 9),
+                firstName,
+                lastName,
+                email,
+                role: currentRole
+            };
+
+            // Sauvegarder dans localStorage
+            localStorage.setItem('monkedh_user', JSON.stringify(currentUser));
+
+            // Afficher l'écran approprié
+            if (currentRole === 'CITOYEN') {
+                showScreen('sosScreen');
+                document.getElementById('userInfo').textContent = 
+                    `${firstName} ${lastName} - Citoyen`;
+            } else {
+                showScreen('dashboardScreen');
+                document.getElementById('regulatorInfo').textContent = 
+                    `${firstName} ${lastName} - Régulateur SAMU`;
+                loadDashboard();
+            }
+        }
+
+        // Mode démo
+        function showDemo() {
+            currentUser = {
+                id: 'demo',
+                firstName: 'Démo',
+                lastName: 'Utilisateur',
+                email: 'demo@monkedh.tn',
+                role: currentRole
+            };
+
+            if (currentRole === 'CITOYEN') {
+                showScreen('sosScreen');
+                document.getElementById('userInfo').textContent = 
+                    `Mode Démo - Citoyen`;
+                // Ajouter une alerte de démo
+                addDemoAlert();
+            } else {
+                showScreen('dashboardScreen');
+                document.getElementById('regulatorInfo').textContent = 
+                    `Mode Démo - Régulateur SAMU`;
+                loadDemoAlerts();
+                loadDashboard();
+            }
+        }
+
+        // Déconnexion
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('monkedh_user');
+            showScreen('loginScreen');
+        }
+
+        // Gestion des écrans
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Appui long sur SOS
+        function startSOSPress() {
+            const sosButton = document.querySelector('.sos-button');
+            sosButton.classList.add('pressed');
+            
+            sosTimeout = setTimeout(() => {
+                sendSOS();
+            }, 3000);
+        }
+
+        function cancelSOSPress() {
+            const sosButton = document.querySelector('.sos-button');
+            sosButton.classList.remove('pressed');
+            
+            if (sosTimeout) {
+                clearTimeout(sosTimeout);
+                sosTimeout = null;
+            }
+        }
+
+        // Envoyer l'alerte SOS
+        function sendSOS() {
+            // Obtenir la géolocalisation
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        createAlert(position.coords);
+                    },
+                    error => {
+                        // Position par défaut (Tunis)
+                        createAlert({
+                            latitude: 36.8065,
+                            longitude: 10.1815
+                        });
+                    }
+                );
+            } else {
+                createAlert({
+                    latitude: 36.8065,
+                    longitude: 10.1815
+                });
+            }
+        }
+
+        // Créer une alerte
+        function createAlert(coords) {
+            const alert = {
+                id: Math.random().toString(36).substr(2, 9),
+                userId: currentUser.id,
+                userName: `${currentUser.firstName} ${currentUser.lastName}`,
+                latitude: coords.latitude,
+                longitude: coords.longitude,
+                timestamp: new Date(),
+                status: 'ACTIVE',
+                location: `${coords.latitude.toFixed(4)}°N, ${coords.longitude.toFixed(4)}°E`
+            };
+
+            // Sauvegarder l'alerte
+            alertsDatabase.push(alert);
+            localStorage.setItem('monkedh_alerts', JSON.stringify(alertsDatabase));
+
+            // Afficher l'écran de confirmation
+            document.getElementById('alertLocation').textContent = alert.location;
+            document.getElementById('alertTime').textContent = 
+                alert.timestamp.toLocaleTimeString('fr-FR');
+            
+            showScreen('alertSentScreen');
+
+            // Jouer un son de confirmation (si possible)
+            try {
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTcIG2m98OScTgwOUKnn77RiHQU2jdXw0IIxBSh+zPLaizsKGGS76+mmVRQLRp/g8r5sIQUrgs/y2og2Bxpo');
+                audio.play();
+            } catch (e) {}
+        }
+
+        // Ajouter une alerte de démo
+        function addDemoAlert() {
+            const alert = {
+                id: 'demo1',
+                userId: 'demo',
+                userName: 'Ahmed Ben Ali',
+                latitude: 36.8065,
+                longitude: 10.1815,
+                timestamp: new Date(),
+                status: 'ACTIVE',
+                location: 'Avenue Habib Bourguiba, Tunis'
+            };
+            alertsDatabase.push(alert);
+            localStorage.setItem('monkedh_alerts', JSON.stringify(alertsDatabase));
+        }
+
+        // Charger des alertes de démo
+        function loadDemoAlerts() {
+            alertsDatabase = [
+                {
+                    id: 'demo1',
+                    userId: 'user1',
+                    userName: 'Ahmed Ben Ali',
+                    latitude: 36.8065,
+                    longitude: 10.1815,
+                    timestamp: new Date(Date.now() - 2 * 60000),
+                    status: 'ACTIVE',
+                    location: 'Avenue Habib Bourguiba, Tunis'
+                },
+                {
+                    id: 'demo2',
+                    userId: 'user2',
+                    userName: 'Fatma Trabelsi',
+                    latitude: 36.8189,
+                    longitude: 10.1658,
+                    timestamp: new Date(Date.now() - 15 * 60000),
+                    status: 'RESOLVED',
+                    location: 'La Marsa, Tunis'
+                }
+            ];
+            localStorage.setItem('monkedh_alerts', JSON.stringify(alertsDatabase));
+        }
+
+        // Charger le dashboard
+        function loadDashboard() {
+            // Charger les alertes depuis localStorage
+            const savedAlerts = localStorage.getItem('monkedh_alerts');
+            if (savedAlerts) {
+                alertsDatabase = JSON.parse(savedAlerts).map(alert => ({
+                    ...alert,
+                    timestamp: new Date(alert.timestamp)
+                }));
+            }
+
+            // Mettre à jour les stats
+            const activeAlerts = alertsDatabase.filter(a => a.status === 'ACTIVE').length;
+            document.getElementById('activeAlerts').textContent = activeAlerts;
+            document.getElementById('availableRescuers').textContent = Math.floor(Math.random() * 20) + 5;
+            document.getElementById('avgResponseTime').textContent = '2min';
+
+            // Afficher les alertes
+            displayAlerts();
+
+            // Rafraîchir toutes les 5 secondes
+            setInterval(() => {
+                loadDashboard();
+            }, 5000);
+        }
+
+        // Afficher les alertes
+        function displayAlerts() {
+            const alertsList = document.getElementById('alertsList');
+            alertsList.innerHTML = '<h3 style="margin: 20px 0; color: #2c3e50;">Alertes en Cours</h3>';
+
+            if (alertsDatabase.length === 0) {
+                alertsList.innerHTML += '<p style="text-align: center; color: #999; padding: 40px;">Aucune alerte</p>';
+                return;
+            }
+
+            // Trier par date (plus récentes en premier)
+            const sortedAlerts = [...alertsDatabase].sort((a, b) => b.timestamp - a.timestamp);
+
+            sortedAlerts.forEach(alert => {
+                const timeSince = Math.floor((Date.now() - alert.timestamp) / 60000);
+                const timeText = timeSince < 1 ? 'À l\'instant' : `Il y a ${timeSince} min`;
+
+                const alertCard = `
+                    <div class="alert-card ${alert.status === 'RESOLVED' ? 'resolved' : ''}">
+                        <div class="alert-header">
+                            <strong style="font-size: 1.1em;">🚨 ACR - ${alert.location}</strong>
+                            <span class="alert-status ${alert.status === 'RESOLVED' ? 'resolved' : ''}">${alert.status === 'ACTIVE' ? 'EN COURS' : 'RÉSOLUE'}</span>
+                        </div>
+                        <div class="alert-details">
+                            <p><strong>👤 Citoyen:</strong> ${alert.userName}</p>
+                            <p><strong>📍 Position:</strong> ${alert.location}</p>
+                            <p><strong>🕐 Heure:</strong> ${alert.timestamp.toLocaleTimeString('fr-FR')} (${timeText})</p>
+                        </div>
+                        ${alert.status === 'ACTIVE' ? `
+                            <div class="alert-actions">
+                                <button class="btn-small btn-success" onclick="resolveAlert('${alert.id}')">✓ Résoudre</button>
+                                <button class="btn-small btn-info" onclick="viewAlertDetails('${alert.id}')">👁️ Détails</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                alertsList.innerHTML += alertCard;
+            });
+        }
+
+        // Résoudre une alerte
+        function resolveAlert(alertId) {
+            const alert = alertsDatabase.find(a => a.id === alertId);
+            if (alert) {
+                alert.status = 'RESOLVED';
+                localStorage.setItem('monkedh_alerts', JSON.stringify(alertsDatabase));
+                displayAlerts();
+                loadDashboard();
+            }
+        }
+
+        // Voir les détails d'une alerte
+        function viewAlertDetails(alertId) {
+            const alert = alertsDatabase.find(a => a.id === alertId);
+            if (alert) {
+                const modalContent = document.getElementById('modalContent');
+                modalContent.innerHTML = `
+                    <p style="margin: 15px 0;"><strong>ID Alerte:</strong> ${alert.id}</p>
+                    <p style="margin: 15px 0;"><strong>Citoyen:</strong> ${alert.userName}</p>
+                    <p style="margin: 15px 0;"><strong>Coordonnées GPS:</strong><br>
+                    Lat: ${alert.latitude.toFixed(6)}<br>
+                    Lng: ${alert.longitude.toFixed(6)}</p>
+                    <p style="margin: 15px 0;"><strong>Heure:</strong> ${alert.timestamp.toLocaleString('fr-FR')}</p>
+                    <p style="margin: 15px 0;"><strong>Status:</strong> ${alert.status}</p>
+                    <button class="btn btn-primary" onclick="closeModal()" style="margin-top: 20px;">Fermer</button>
+                `;
+                document.getElementById('alertModal').classList.add('active');
+            }
+        }
+
+        // Fermer le modal
+        function closeModal() {
+            document.getElementById('alertModal').classList.remove('active');
+        }
+
+        // Retour à l'écran SOS
+        function backToSOS() {
+            showScreen('sosScreen');
+        }
+
+        // Afficher le guide RCP
+        function showRCPGuide() {
+            showScreen('rcpScreen');
+            compressionCount = 0;
+            document.getElementById('compressionCount').textContent = '0 / 30';
+        }
+
+        // Retour depuis RCP
+        function backFromRCP() {
+            stopMetronome();
+            if (currentUser && currentUser.role === 'CITOYEN') {
+                showScreen('sosScreen');
+            } else {
+                showScreen('alertSentScreen');
+            }
+        }
+
+        // Métronome
+        function toggleMetronome() {
+            if (metronomeRunning) {
+                stopMetronome();
+            } else {
+                startMetronome();
+            }
+        }
+
+        function startMetronome() {
+            metronomeRunning = true;
+            compressionCount = 0;
+            document.getElementById('metronomeBtn').textContent = '⏸ Arrêter';
+            document.getElementById('metronomeBtn').classList.add('stop');
+            
+            // 100 BPM = 600ms par battement
+            metronomeInterval = setInterval(() => {
+                const circle = document.getElementById('metronomeCircle');
+                circle.classList.add('beat');
+                
+                // Jouer un son (beep)
+                try {
+                    const beep = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTcIG2m98OScTgwOUKnn77RiHQU2jdXw0IIxBSh+zPLaizsKGGS76+mmVRQLRp/g8r5sIQUrgs/y2og2Bxpo');
+                    beep.play();
+                } catch (e) {}
+                
+                setTimeout(() => {
+                    circle.classList.remove('beat');
+                }, 300);
+
+                compressionCount++;
+                if (compressionCount > 30) compressionCount = 1;
+                
+                document.getElementById('compressionCount').textContent = `${compressionCount} / 30`;
+                
+                if (compressionCount === 30) {
+                    // Pause pour 2 insufflations
+                    setTimeout(() => {
+                        compressionCount = 0;
+                    }, 2000);
+                }
+            }, 600);
+        }
+
+        function stopMetronome() {
+            metronomeRunning = false;
+            if (metronomeInterval) {
+                clearInterval(metronomeInterval);
+                metronomeInterval = null;
+            }
+            document.getElementById('metronomeBtn').textContent = '▶ Démarrer';
+            document.getElementById('metronomeBtn').classList.remove('stop');
+        }
+
+        // Initialisation au chargement
+        window.onload = function() {
+            // Charger l'utilisateur depuis localStorage
+            const savedUser = localStorage.getItem('monkedh_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                if (currentUser.role === 'CITOYEN') {
+                    showScreen('sosScreen');
+                    document.getElementById('userInfo').textContent = 
+                        `${currentUser.firstName} ${currentUser.lastName} - Citoyen`;
+                } else {
+                    showScreen('dashboardScreen');
+                    document.getElementById('regulatorInfo').textContent = 
+                        `${currentUser.firstName} ${currentUser.lastName} - Régulateur SAMU`;
+                    loadDashboard();
+                }
+            }
+        };
+    </script>
+</body>
+</html>
